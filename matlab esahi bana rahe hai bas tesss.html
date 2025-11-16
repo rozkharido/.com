@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>ROZ KHARIDO - Premium</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+        :root {
+            --bg-light: #f2f4f8; --text-dark: #1e293b; --accent-primary: #6366f1; 
+            --card-bg: #ffffff; --gold: #f59e0b;
+        }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg-light); color: var(--text-dark); margin: 0; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
+
+        /* --- HEADER (Side by Side Logo + Neon Text) --- */
+        header {
+            position: sticky; top: 0; z-index: 900; background: #ffffff;
+            padding: 10px 20px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04); height: 70px; box-sizing: border-box;
+        }
+        .logo-container { display: flex; align-items: center; gap: 12px; }
+        #app-logo-img { height: 45px; width: 45px; object-fit: cover; border-radius: 10px; display: none; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        
+        /* NEON GLOW TEXT */
+        .logo-text {
+            font-size: 1.5rem; font-weight: 800; line-height: 1;
+            color: #4338ca; text-transform: uppercase; letter-spacing: -0.5px;
+            text-shadow: 0 0 10px rgba(79, 70, 229, 0.5), 0 0 20px rgba(79, 70, 229, 0.3);
+        }
+        .logo-text span { color: #ec4899; }
+
+        .icon-btn { font-size: 1.5rem; position: relative; color: #334155; }
+        #cart-count { position: absolute; top: -5px; right: -8px; background: #ef4444; color: white; font-size: 0.65rem; font-weight: 700; border-radius: 50%; padding: 3px 6px; display: none; box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4); }
+
+        /* --- VIEWS --- */
+        .view-section { display: none; animation: fadeIn 0.4s ease-out; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from {opacity:0; transform:translateY(10px)} to {opacity:1; transform:translateY(0)} }
+
+        /* --- HOME --- */
+        .search-box { background: #ffffff; margin: 15px 20px; padding: 12px 15px; border-radius: 15px; display: flex; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .search-box input { border:none; outline:none; width:100%; margin-left:10px; font-family:inherit; font-size:1rem; }
+
+        .slider-box { margin: 0 20px 20px 20px; border-radius: 20px; overflow: hidden; aspect-ratio: 16/8; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        
+        .section-title { padding: 0 20px; font-size: 1.2rem; font-weight: 800; margin-bottom: 15px; color: #0f172a; }
+
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding: 0 20px 20px 20px; }
+        .product-card {
+            background: white; border-radius: 18px; padding: 10px; border: 1px solid white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: transform 0.2s; position: relative;
+        }
+        .product-card:active { transform: scale(0.98); }
+        .p-img { width: 100%; height: 170px; object-fit: cover; border-radius: 14px; background: #f1f5f9; margin-bottom: 12px; }
+        .p-rating { position:absolute; top:18px; left:18px; background:rgba(255,255,255,0.9); padding:4px 8px; border-radius:8px; font-size:0.7rem; font-weight:700; color: #f59e0b; backdrop-filter: blur(4px); }
+        .p-title { font-size: 1rem; font-weight: 600; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .p-price { font-size: 1.1rem; font-weight: 800; color: #0f172a; }
+        .p-mrp { font-size: 0.85rem; text-decoration: line-through; color: #94a3b8; margin-left: 5px; }
+
+        /* --- CATEGORY GRID (New Design) --- */
+        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
+        .cat-card { 
+            position: relative; height: 120px; border-radius: 18px; overflow: hidden; cursor: pointer; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08); transition: 0.2s;
+        }
+        .cat-card:active { transform: scale(0.98); }
+        .cat-card img { width: 100%; height: 100%; object-fit: cover; }
+        .cat-overlay { 
+            position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); 
+            display: flex; align-items: flex-end; padding: 15px;
+        }
+        .cat-name { color: white; font-weight: 700; font-size: 1.1rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+
+        /* --- PRODUCT DETAIL (Apple/Flipkart Style) --- */
+        .page-overlay { 
+            position: fixed; inset: 0; background: #fff; z-index: 2000; 
+            transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); 
+            display: flex; flex-direction: column; overflow-y: auto;
+        }
+        .page-overlay.open { transform: translateX(0); }
+        
+        .detail-header { position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 15px; z-index: 10; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 15px; }
+        .back-icon { font-size: 1.4rem; color: #334155; border: none; background: none; }
+
+        .detail-scroll { padding: 0 20px 120px 20px; }
+        .detail-hero-img { 
+            width: 100%; height: 380px; object-fit: contain; border-radius: 24px; 
+            background: #f8fafc; margin: 20px 0; border: 1px solid #f1f5f9;
+        }
+
+        .dt-title { font-size: 1.6rem; font-weight: 800; line-height: 1.2; color: #0f172a; margin-bottom: 10px; }
+        .dt-price-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 20px; }
+        .dt-curr { font-size: 2rem; font-weight: 800; color: #4f46e5; }
+        .dt-old { font-size: 1.1rem; text-decoration: line-through; color: #94a3b8; }
+        
+        /* Size Chips */
+        .size-chips { display: flex; gap: 12px; margin-bottom: 25px; }
+        .chip { 
+            padding: 10px 24px; border-radius: 12px; border: 1px solid #cbd5e1; 
+            font-weight: 600; color: #475569; background: white; font-size: 1rem; transition: 0.2s;
+        }
+        .chip.selected { border-color: #4f46e5; background: #eef2ff; color: #4f46e5; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2); }
+
+        /* Bottom Action Bar */
+        .action-bar { 
+            position: fixed; bottom: 0; left: 0; right: 0; padding: 15px 20px; background: white; 
+            border-top: 1px solid #f1f5f9; display: flex; gap: 15px; z-index: 20;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+        }
+        .act-btn { flex: 1; padding: 16px; border-radius: 16px; font-weight: 700; font-size: 1rem; border: none; }
+        .btn-cart { background: #f1f5f9; color: #4f46e5; }
+        .btn-buy { background: #4f46e5; color: white; box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3); }
+
+        /* --- ROZ COIN / SUPPORT --- */
+        .coin-banner {
+            background: linear-gradient(135deg, #1e1b4b, #4338ca); margin: 20px; padding: 40px 20px;
+            border-radius: 24px; text-align: center; color: white; position: relative; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(67, 56, 202, 0.4);
+        }
+        .support-link {
+            display: flex; align-items: center; justify-content: center; gap: 12px; margin: 0 20px 15px 20px;
+            padding: 18px; background: white; border-radius: 16px; font-weight: 700; font-size: 1rem;
+            text-decoration: none; color: #0f172a; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        /* --- BOTTOM NAV --- */
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 10px 0;
+            border-top: 1px solid #f1f5f9; z-index: 1000;
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 0.7rem; color: #94a3b8; background: none; border: none; font-weight: 600; width: 25%; }
+        .nav-item i { font-size: 1.5rem; transition: 0.2s; }
+        .nav-item.active { color: #4f46e5; }
+        .nav-item.active i { transform: translateY(-3px); filter: drop-shadow(0 4px 6px rgba(79, 70, 229, 0.3)); }
+
+        /* --- CHECKOUT & MODALS --- */
+        .modal-wrap { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: none; justify-content: center; align-items: flex-end; backdrop-filter: blur(4px); }
+        .modal-card { background: white; width: 100%; max-width: 500px; border-radius: 30px 30px 0 0; padding: 25px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s; }
+        @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+        
+        .addr-box { background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #e2e8f0; font-size: 0.95rem; line-height: 1.5; }
+        .pay-opt { display: flex; align-items: center; gap: 10px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 10px; font-weight: 600; }
+        .pay-opt:has(input:checked) { border-color: #4f46e5; background: #eef2ff; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo-container">
+            <img id="app-logo-img" src="">
+            <div id="app-logo-text" class="logo-text">Roz<span>Kharido</span></div>
+        </div>
+        <div class="icon-btn" onclick="openCart()">
+            <i class="fas fa-shopping-bag"></i>
+            <span id="cart-count">0</span>
+        </div>
+    </header>
+
+    <!-- 1. HOME VIEW -->
+    <div id="view-home" class="view-section active">
+        <div class="search-box">
+            <i class="fas fa-search" style="color: #94a3b8"></i>
+            <input type="text" id="search" placeholder="Search brands, products...">
+        </div>
+        
+        <div class="slider-box">
+            <div id="slider-wrapper" style="display:flex; transition:0.5s; height:100%;"></div>
+        </div>
+
+        <div class="section-title"><span>Trending Now</span></div>
+        <div class="product-grid" id="p-grid"></div>
+    </div>
+
+    <!-- 2. CATEGORY VIEW (With Images) -->
+    <div id="view-category" class="view-section">
+        <div class="section-title" style="margin: 20px 20px 0 20px;">Explore Categories</div>
+        <div id="cat-grid-display" class="cat-grid"></div>
+    </div>
+
+    <!-- 3. ROZ COIN / SUPPORT -->
+    <div id="view-coin" class="view-section">
+        <div class="coin-banner">
+            <i class="fas fa-coins" style="font-size: 3rem; color: #fbbf24; margin-bottom: 10px;"></i>
+            <h2 style="margin:0; font-size: 2.5rem;">0</h2>
+            <p style="opacity: 0.8;">Roz Coins Balance</p>
+        </div>
+        
+        <div class="section-title" style="margin-left: 20px;">Support</div>
+        <a href="https://wa.me/919263679089" class="support-link"><i class="fab fa-whatsapp" style="color:#25D366; font-size:1.5rem;"></i> Chat on WhatsApp</a>
+        <a href="https://www.instagram.com/rozkharido?igsh=aHd1b2wyYmp2bzlr" class="support-link"><i class="fab fa-instagram" style="color:#E1306C; font-size:1.5rem;"></i> DM on Instagram</a>
+    </div>
+
+    <!-- 4. PROFILE -->
+    <div id="view-profile" class="view-section">
+        <div style="padding: 30px 20px; text-align: center;">
+            <div style="width:90px; height:90px; background:#e2e8f0; border-radius:50%; margin:0 auto 15px; display:flex; justify-content:center; align-items:center; font-size:2rem; color:#64748b;"><i class="fas fa-user"></i></div>
+            <h2 id="p-name" style="margin:0;">Guest</h2>
+            <p id="p-mobile" style="color:#64748b;">Login to track orders</p>
+        </div>
+        <div style="padding: 0 20px;">
+            <button onclick="if(user) openMyOrders(); else openLogin();" style="width:100%; padding:18px; background:white; border-radius:16px; display:flex; justify-content:space-between; align-items:center; font-weight:600; box-shadow:0 2px 10px rgba(0,0,0,0.03); border:none; margin-bottom:15px;">
+                <span><i class="fas fa-box" style="color:#4f46e5; margin-right:10px;"></i> My Orders</span> <i class="fas fa-chevron-right" style="color:#cbd5e1"></i>
+            </button>
+             <button onclick="logout()" style="width:100%; padding:18px; background:#fee2e2; border-radius:16px; color:#ef4444; font-weight:600; border:none;">Logout</button>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('home', this)"><i class="fas fa-home"></i> Home</button>
+        <button class="nav-item" onclick="switchTab('category', this)"><i class="fas fa-th-large"></i> Category</button>
+        <button class="nav-item" onclick="switchTab('coin', this)"><i class="fas fa-coins"></i> Roz Coin</button>
+        <button class="nav-item" onclick="switchTab('profile', this)"><i class="fas fa-user"></i> Profile</button>
+    </nav>
+
+    <!-- PRODUCT DETAIL PAGE (Premium) -->
+    <div id="p-page" class="page-overlay">
+        <div class="detail-header">
+            <button class="back-icon" onclick="document.getElementById('p-page').classList.remove('open')"><i class="fas fa-arrow-left"></i></button>
+            <b style="font-size:1.1rem;">Product Details</b>
+        </div>
+        
+        <div class="detail-scroll">
+            <img id="dt-img" class="detail-hero-img">
+            <div id="dt-gal" style="display:flex; gap:10px; overflow-x:auto; margin-bottom:20px;"></div>
+            
+            <h1 id="dt-name" class="dt-title">Product Name</h1>
+            <div class="dt-price-row">
+                <span id="dt-curr" class="dt-curr">₹0</span>
+                <span id="dt-old" class="dt-old">₹0</span>
+            </div>
+
+            <p style="font-weight:700; margin-bottom:10px; color:#334155;">Select Size</p>
+            <div class="size-chips" id="size-opts">
+                <div onclick="selSize(this,'S')" class="chip">S</div>
+                <div onclick="selSize(this,'M')" class="chip">M</div>
+                <div onclick="selSize(this,'L')" class="chip">L</div>
+                <div onclick="selSize(this,'XL')" class="chip">XL</div>
+            </div>
+
+            <div style="background:#f8fafc; padding:20px; border-radius:20px; margin-bottom:30px;">
+                <h4 style="margin:0 0 8px; color:#64748b;">Description</h4>
+                <p id="dt-desc" style="margin:0; line-height:1.6; color:#334155;">...</p>
+            </div>
+
+            <h3 style="font-weight:800;">Reviews</h3>
+            <div id="dt-revs" style="margin-bottom:20px;"></div>
+        </div>
+
+        <div class="action-bar">
+            <button class="act-btn btn-cart" onclick="addCart()">Add to Cart</button>
+            <button class="act-btn btn-buy" onclick="buyNow()">Buy Now</button>
+        </div>
+    </div>
+
+    <!-- ORDERS OVERLAY -->
+    <div id="orders-page" class="page-overlay">
+        <div class="detail-header">
+            <button class="back-icon" onclick="document.getElementById('orders-page').classList.remove('open')"><i class="fas fa-arrow-left"></i></button>
+            <b>My Orders</b>
+        </div>
+        <div id="orders-list" style="padding:20px;"></div>
+    </div>
+
+    <!-- LOGIN MODAL -->
+    <div id="login-modal" class="modal-wrap">
+        <div class="modal-card">
+            <h2 style="font-size:1.8rem; margin-bottom:20px;">Login</h2>
+            <input id="l-mobile" placeholder="Mobile Number" style="width:100%; padding:15px; background:#f8fafc; border:none; border-radius:12px; margin-bottom:15px; font-size:1rem;">
+            <input id="l-pass" type="password" placeholder="Password" style="width:100%; padding:15px; background:#f8fafc; border:none; border-radius:12px; margin-bottom:20px; font-size:1rem;">
+            <button onclick="doLogin()" style="width:100%; padding:15px; background:#4f46e5; color:white; border:none; border-radius:12px; font-weight:700; font-size:1rem;">Login</button>
+            <p onclick="isReg=!isReg; this.innerText=isReg?'Back to Login':'Create New Account'; document.getElementById('l-name').style.display=isReg?'block':'none'" style="text-align:center; margin-top:20px; color:#4f46e5; font-weight:600;">Create New Account</p>
+            <input id="l-name" placeholder="Full Name" style="display:none; width:100%; padding:15px; background:#f8fafc; border:none; border-radius:12px; margin-bottom:15px; margin-top:15px;">
+        </div>
+    </div>
+
+    <!-- CART & CHECKOUT MODAL -->
+    <div id="cart-modal" class="modal-wrap">
+        <div class="modal-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 style="margin:0;">My Cart</h2>
+                <button onclick="document.getElementById('cart-modal').style.display='none'" style="background:none; border:none; font-size:1.5rem; color:#94a3b8;">&times;</button>
+            </div>
+            
+            <!-- Cart Items List -->
+            <div id="cart-items" style="max-height:30vh; overflow-y:auto; margin-bottom:20px;"></div>
+            
+            <!-- Checkout Info (Hidden initially) -->
+            <div id="chk-info" style="display:none;">
+                <h4 style="margin-bottom:10px;">Shipping Address</h4>
+                <div class="addr-box">
+                    <p id="chk-addr" style="margin:0; color:#64748b;">Loading...</p>
+                </div>
+                
+                <h4 style="margin-bottom:10px;">Payment Method</h4>
+                <label class="pay-opt"><input type="radio" name="pay" value="COD" checked> Cash on Delivery (COD)</label>
+                <label class="pay-opt"><input type="radio" name="pay" value="UPI"> UPI (Fast Payment)</label>
+            </div>
+
+            <div style="border-top:1px solid #f1f5f9; padding-top:20px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <p style="margin:0; font-size:0.8rem; color:#94a3b8;">Total Payable</p>
+                    <span id="cart-total" style="font-size:1.5rem; font-weight:800; color:#0f172a;">₹0</span>
+                </div>
+                <button id="btn-checkout" onclick="showCheckout()" style="padding:15px 30px; background:#4f46e5; color:white; border:none; border-radius:15px; font-weight:700;">Checkout</button>
+                <button id="btn-place" onclick="placeOrder()" style="display:none; padding:15px 30px; background:#10b981; color:white; border:none; border-radius:15px; font-weight:700;">Place Order</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">Msg</div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyDjeChHyY8njT1BkQoeni3pX1ccu_2f2kk", authDomain: "roz-kharido.firebaseapp.com", databaseURL: "https://roz-kharido-default-rtdb.firebaseio.com", projectId: "roz-kharido", storageBucket: "roz-kharido.firebasestorage.app", messagingSenderId: "412847485681", appId: "1:412847485681:web:f37d00e68d00fff56d6f50" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        
+        let user = JSON.parse(localStorage.getItem('rk_user'));
+        let cart = JSON.parse(localStorage.getItem('rk_cart') || '[]');
+        let products=[], curProd=null, selSz=null, isReg=false;
+
+        window.onload = () => {
+            loadLogo(); loadProds(); loadBanners(); loadCategories(); updCart();
+            if(user) renderProfile();
+        };
+
+        function loadLogo() {
+            db.ref('adminSettings/logo').on('value', s => {
+                if(s.val()){ document.getElementById('app-logo-img').src=s.val(); document.getElementById('app-logo-img').style.display='block'; document.getElementById('app-logo-text').style.display='block'; }
+            });
+        }
+
+        function loadProds() {
+            db.ref('ownProducts').on('value', s => {
+                document.getElementById('p-grid').innerHTML=''; products=[];
+                if(s.exists()) s.forEach(c => {
+                    const p = c.val(); p.id=c.key; products.push(p);
+                    const rtg = p.fakeRating || (4+(Math.random())).toFixed(1);
+                    const cnt = p.fakeCount || 50;
+                    document.getElementById('p-grid').innerHTML += `
+                    <div class="product-card" onclick="openProd('${p.id}')" data-cat="${p.category||''}">
+                        <div class="p-rating"><i class="fas fa-star"></i> ${rtg} (${cnt})</div>
+                        <img src="${p.images?p.images[0]:p.image}" class="p-img">
+                        <div class="p-title">${p.name}</div>
+                        <div class="p-price">₹${p.price} <span class="p-mrp">₹${p.originalPrice}</span></div>
+                    </div>`;
+                });
+            });
+        }
+
+        function loadCategories() {
+            db.ref('categories').on('value', s => {
+                const g = document.getElementById('cat-grid-display'); g.innerHTML='';
+                if(s.exists()) s.forEach(c => {
+                    const n = c.val().name; const img = c.val().image || 'https://placehold.co/200';
+                    g.innerHTML += `
+                    <div class="cat-card" onclick="filterCat('${n}')">
+                        <img src="${img}">
+                        <div class="cat-overlay"><span class="cat-name">${n}</span></div>
+                    </div>`;
+                });
+            });
+        }
+
+        function filterCat(cat) {
+            switchTab('home', document.querySelectorAll('.nav-item')[0]);
+            document.querySelectorAll('.product-card').forEach(c => {
+                c.style.display = (cat==='All' || c.dataset.cat === cat) ? 'block' : 'none';
+            });
+            toast('Showing: '+cat);
+        }
+
+        function openProd(id) {
+            curProd = products.find(x=>x.id===id); selSz=null;
+            document.querySelectorAll('.chip').forEach(b=>b.classList.remove('selected'));
+            document.getElementById('dt-img').src = curProd.images?curProd.images[0]:curProd.image;
+            document.getElementById('dt-name').innerText = curProd.name;
+            document.getElementById('dt-curr').innerText = '₹'+curProd.price;
+            document.getElementById('dt-old').innerText = '₹'+curProd.originalPrice;
+            document.getElementById('dt-desc').innerText = curProd.description || 'No description available.';
+            
+            // Gallery
+            const gal=document.getElementById('dt-gal'); gal.innerHTML='';
+            if(curProd.images) curProd.images.forEach(i=>gal.innerHTML+=`<img src="${i}" onclick="document.getElementById('dt-img').src='${i}'" style="width:60px;height:60px;border-radius:10px;object-fit:cover;border:1px solid #eee;">`);
+
+            // Reviews
+            const rl = document.getElementById('dt-revs'); rl.innerHTML='<p style="color:#94a3b8">Loading...</p>';
+            db.ref('reviews/'+id).once('value', s=>{
+                rl.innerHTML='';
+                if(s.exists()) s.forEach(r=> rl.innerHTML+=`<div style="background:#f8fafc; padding:15px; border-radius:15px; margin-bottom:10px;"><b>${r.val().user}</b> <i class="fas fa-star" style="color:#f59e0b;font-size:0.8rem;"></i> ${r.val().rating}<br><small style="color:#64748b">${r.val().comment}</small></div>`);
+                else rl.innerHTML='<p style="color:#94a3b8">No reviews yet.</p>';
+            });
+
+            document.getElementById('p-page').classList.add('open');
+        }
+
+        function selSize(e,s) { selSz=s; document.querySelectorAll('.chip').forEach(b=>b.classList.remove('selected')); e.classList.add('selected'); }
+        function addCart() { if(!selSz) return toast('Select Size First'); cart.push({...curProd, size:selSz, qty:1}); updCart(); toast('Added to Cart'); }
+        function buyNow(){ addCart(); document.getElementById('cart-modal').style.display='flex'; renderCart(); }
+
+        function renderCart() {
+            const l=document.getElementById('cart-items'); l.innerHTML=''; let t=0;
+            cart.forEach((x,i)=>{ t+=x.price*x.qty; l.innerHTML+=`<div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center;"><div style="display:flex; gap:10px;"><img src="${x.images?x.images[0]:x.image}" style="width:50px;height:50px;border-radius:8px;object-fit:cover;"><div><b>${x.name}</b><br><small>Size: ${x.size}</small></div></div><b>₹${x.price}</b> <i class="fas fa-trash" onclick="cart.splice(${i},1);updCart();renderCart()" style="color:#ef4444"></i></div>` });
+            document.getElementById('cart-total').innerText='₹'+t;
+            // Reset Checkout View
+            document.getElementById('chk-info').style.display='none'; document.getElementById('cart-items').style.display='block';
+            document.getElementById('btn-checkout').style.display='block'; document.getElementById('btn-place').style.display='none';
+        }
+
+        function showCheckout() {
+            if(!user) return openLogin();
+            if(!cart.length) return toast('Cart is empty');
+            // If address missing, prompt update (Logic simplified)
+            document.getElementById('chk-addr').innerText = (user.address && user.city) ? `${user.address}, ${user.city} - ${user.pin}` : 'No Address Found. Please update profile.';
+            
+            document.getElementById('cart-items').style.display='none';
+            document.getElementById('chk-info').style.display='block';
+            document.getElementById('btn-checkout').style.display='none';
+            document.getElementById('btn-place').style.display='block';
+        }
+
+        function placeOrder() {
+            if(!user.address) return toast('Update Address in Profile');
+            const mode = document.querySelector('input[name="pay"]:checked').value;
+            const t = cart.reduce((a,b)=>a+b.price*b.qty,0);
+            const oid = 'ORD'+Date.now();
+            
+            db.ref('orders').push({orderId:oid, userName:user.name, userMobile:user.mobile, shippingAddress:`${user.address}, ${user.city}`, items:cart, totalAmount:t, paymentMethod:mode, status:'Pending', date:Date.now()});
+            
+            cart=[]; updCart(); document.getElementById('cart-modal').style.display='none';
+            if(mode==='UPI') window.location.href=`upi://pay?pa=9263679089@ybl&pn=RozKharido&am=${t}&tn=Order-${oid}`;
+            else toast('Order Placed Successfully');
+            setTimeout(()=>switchTab('profile'),1000);
+        }
+
+        function updCart(){ localStorage.setItem('rk_cart', JSON.stringify(cart)); document.getElementById('cart-count').innerText=cart.length; document.getElementById('cart-count').style.display=cart.length?'block':'none'; }
+        function switchTab(t, el) {
+            document.querySelectorAll('.view-section').forEach(x=>x.classList.remove('active'));
+            document.getElementById('view-'+t).classList.add('active');
+            if(el) { document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active')); el.classList.add('active'); }
+        }
+
+        function openLogin(){ document.getElementById('login-modal').style.display='flex'; }
+        function doLogin(){
+            const m=document.getElementById('l-mobile').value, p=document.getElementById('l-pass').value, n=document.getElementById('l-name').value;
+            if(isReg) db.ref('users/'+m).set({name:n, mobile:m, pass:p, address:'', city:'', pin:''}).then(()=>loginSuccess({name:n, mobile:m}));
+            else db.ref('users/'+m).once('value',s=>{ if(s.exists()&&s.val().pass==p) loginSuccess(s.val()); else toast('Invalid Credentials'); });
+        }
+        function loginSuccess(u){ user=u; localStorage.setItem('rk_user', JSON.stringify(u)); document.getElementById('login-modal').style.display='none'; renderProfile(); }
+        function renderProfile(){ document.getElementById('p-name').innerText=user.name; document.getElementById('p-mobile').innerText=user.mobile; }
+        function logout(){ user=null; localStorage.removeItem('rk_user'); location.reload(); }
+        
+        function openMyOrders(){
+            const l=document.getElementById('orders-list'); l.innerHTML='Loading...';
+            db.ref('orders').orderByChild('userMobile').equalTo(user.mobile).on('value', s=>{
+                l.innerHTML='';
+                if(s.exists()) s.forEach(o=> l.innerHTML+=`<div style="background:#f8fafc; padding:15px; margin-bottom:10px; border-radius:12px; border:1px solid #e2e8f0;"><b>#${o.val().orderId}</b> <span style="float:right; color:#4f46e5">${o.val().status}</span><br>₹${o.val().totalAmount} | ${o.val().paymentMethod}</div>`);
+                else l.innerHTML='No orders';
+            });
+            document.getElementById('orders-page').classList.add('open');
+        }
+
+        function loadBanners(){ db.ref('banners').on('value', s=>{ const w=document.getElementById('slider-wrapper'); w.innerHTML=''; if(s.exists()) s.forEach(c=>w.innerHTML+=`<img src="${c.val().image}" style="min-width:100%; object-fit:cover;">`) }) }
+        function toast(m){ const t=document.getElementById('toast'); t.innerText=m; t.style.opacity=1; setTimeout(()=>t.style.opacity=0,2000); }
+    </script>
+</body>
+</html>
